@@ -1,0 +1,659 @@
+openapi: 3.0.3
+info:
+  title: 数字人实时交互应用 API
+  description: 支持实时语音文本交互的数字人应用后端API
+  version: 1.0.0
+  contact:  
+    name: Tony Digital Human Project
+    
+servers:
+  - url: http://localhost:8000/api/v1
+    description: 开发环境
+  - url: https://api.digitalhuman.tony.com/v1
+    description: 生产环境
+
+paths:
+  # 用户认证相关
+  /auth/register:
+    post:
+      summary: 用户注册
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, email, password]
+              properties:
+                username:
+                  type: string
+                  minLength: 3
+                  maxLength: 50
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 8
+      responses:
+        '201':
+          description: 注册成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /auth/login:
+    post:
+      summary: 用户登录
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string 
+                  format: email
+                password:
+                  type: string
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  token_type:
+                    type: string
+                    example: bearer
+                  expires_in:
+                    type: integer
+                  user:
+                    $ref: '#/components/schemas/UserResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # 对话管理
+  /conversations:
+    get:
+      summary: 获取用户对话列表
+      tags: [Conversations]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+      responses:
+        '200':
+          description: 对话列表
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  conversations:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ConversationResponse'
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  limit:
+                    type: integer
+
+    post:
+      summary: 创建新对话
+      tags: [Conversations]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [digital_human_id]
+              properties:
+                digital_human_id:
+                  type: integer
+                title:
+                  type: string
+                  maxLength: 200
+      responses:
+        '201':
+          description: 对话创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationResponse'
+
+  /conversations/{conversation_id}:
+    get:
+      summary: 获取对话详情
+      tags: [Conversations]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: conversation_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 对话详情
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationDetailResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /conversations/{conversation_id}/messages:
+    get:
+      summary: 获取对话消息
+      tags: [Messages]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: conversation_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+      responses:
+        '200':
+          description: 消息列表
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  messages:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MessageResponse'
+                  total:
+                    type: integer
+
+    post:
+      summary: 发送文本消息
+      tags: [Messages]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: conversation_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text_content]
+              properties:
+                text_content:
+                  type: string
+                  maxLength: 5000
+      responses:
+        '201':
+          description: 消息发送成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+  # 语音处理
+  /speech/recognize:
+    post:
+      summary: 语音识别
+      tags: [Speech]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [audio_file, conversation_id]
+              properties:
+                audio_file:
+                  type: string
+                  format: binary
+                conversation_id:
+                  type: integer
+      responses:
+        '200':
+          description: 识别成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  text:
+                    type: string
+                  confidence:
+                    type: number
+                    format: float
+                  processing_time:
+                    type: integer
+                  message:
+                    $ref: '#/components/schemas/MessageResponse'
+
+  /speech/synthesize:
+    post:
+      summary: 语音合成
+      tags: [Speech]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text, voice_profile_id]
+              properties:
+                text:
+                  type: string
+                  maxLength: 1000
+                voice_profile_id:
+                  type: integer
+      responses:
+        '200':
+          description: 合成成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  audio_url:
+                    type: string
+                    format: uri
+                  duration:
+                    type: integer
+                  processing_time:
+                    type: integer
+
+  # 数字人管理
+  /digital-humans:
+    get:
+      summary: 获取用户数字人列表
+      tags: [DigitalHumans]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 数字人列表
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DigitalHumanResponse'
+
+    post:
+      summary: 创建数字人
+      tags: [DigitalHumans]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, appearance_profile_id]
+              properties:
+                name:
+                  type: string
+                  maxLength: 100
+                appearance_profile_id:
+                  type: integer
+      responses:
+        '201':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DigitalHumanResponse'
+
+  # 外观定制
+  /appearance-profiles:
+    get:
+      summary: 获取外观配置列表
+      tags: [Appearance]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 外观配置列表
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AppearanceProfileResponse'
+
+    post:
+      summary: 创建外观配置
+      tags: [Appearance]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [name, source_type]
+              properties:
+                name:
+                  type: string
+                  maxLength: 100
+                source_type:
+                  type: string
+                  enum: [upload, preset, generated]
+                source_image:
+                  type: string
+                  format: binary
+                  description: 当source_type为upload时必需
+                preset_id:
+                  type: string
+                  description: 当source_type为preset时必需
+      responses:
+        '201':
+          description: 创建成功，开始生成
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppearanceProfileResponse'
+
+  # 音色定制
+  /voice-profiles:
+    get:
+      summary: 获取音色配置列表
+      tags: [Voice]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 音色配置列表
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VoiceProfileResponse'
+
+    post:
+      summary: 创建音色配置
+      tags: [Voice]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [name, type]
+              properties:
+                name:
+                  type: string
+                  maxLength: 100
+                type:
+                  type: string
+                  enum: [preset, custom]
+                preset_id:
+                  type: string
+                  description: 当type为preset时必需
+                sample_audio:
+                  type: string
+                  format: binary
+                  description: 当type为custom时必需
+      responses:
+        '201':
+          description: 创建成功，开始训练
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoiceProfileResponse'
+
+# WebSocket连接用于实时交互
+  /ws/conversations/{conversation_id}:
+    description: |
+      WebSocket连接用于实时语音交互
+      
+      消息格式:
+      - 发送: {"type": "audio_chunk", "data": "base64_audio"}
+      - 接收: {"type": "text_response", "text": "回复内容", "audio_url": "音频URL"}
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        email:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        preferences:
+          type: object
+
+    ConversationResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        digital_human_id:
+          type: integer
+        started_at:
+          type: string
+          format: date-time
+        ended_at:
+          type: string
+          format: date-time
+          nullable: true
+        is_active:
+          type: boolean
+        message_count:
+          type: integer
+        total_duration:
+          type: integer
+
+    ConversationDetailResponse:
+      allOf:
+        - $ref: '#/components/schemas/ConversationResponse'
+        - type: object
+          properties:
+            digital_human:
+              $ref: '#/components/schemas/DigitalHumanResponse'
+            recent_messages:
+              type: array
+              items:
+                $ref: '#/components/schemas/MessageResponse'
+
+    MessageResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        sender_type:
+          type: string
+          enum: [user, digital_human]
+        content_type:
+          type: string
+          enum: [text, audio]
+        text_content:
+          type: string
+          nullable: true
+        audio_url:
+          type: string
+          nullable: true
+        audio_duration:
+          type: integer
+          nullable: true
+        processing_time:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        metadata:
+          type: object
+
+    DigitalHumanResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        model_url:
+          type: string
+        texture_url:
+          type: string
+        is_default:
+          type: boolean
+        appearance_params:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+
+    AppearanceProfileResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        source_type:
+          type: string
+          enum: [upload, preset, generated]
+        source_image_url:
+          type: string
+          nullable: true
+        generation_status:
+          type: string
+          enum: [pending, processing, ready, failed]
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+
+    VoiceProfileResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        type:
+          type: string
+          enum: [preset, custom]
+        sample_audio_url:
+          type: string
+          nullable: true
+        training_status:
+          type: string
+          enum: [pending, training, ready, failed]
+        similarity_score:
+          type: number
+          format: float
+          nullable: true
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+          nullable: true
+
+  responses:
+    BadRequest:
+      description: 请求参数错误
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    Unauthorized:
+      description: 未授权访问
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    NotFound:
+      description: 资源不存在
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    Conflict:
+      description: 资源冲突
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
