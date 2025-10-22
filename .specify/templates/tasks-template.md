@@ -57,14 +57,27 @@ description: "Task list template for feature implementation"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-Examples of foundational tasks (adjust based on your project):
+Constitution-aligned foundational tasks:
 
-- [ ] T004 Setup database schema and migrations framework
-- [ ] T005 [P] Implement authentication/authorization framework
-- [ ] T006 [P] Setup API routing and middleware structure
-- [ ] T007 Create base models/entities that all stories depend on
-- [ ] T008 Configure error handling and logging infrastructure
-- [ ] T009 Setup environment configuration management
+**Code Quality Foundation**:
+- [ ] T004 Setup code quality tools (linting, formatting, static analysis)
+- [ ] T005 Configure pre-commit hooks for code quality checks
+- [ ] T006 [P] Establish module structure following SOLID principles
+
+**Testing Infrastructure** (Constitution: Test-Driven Development):
+- [ ] T007 [P] Setup testing framework for unit/integration/performance tests
+- [ ] T008 [P] Configure continuous integration pipeline with automated testing
+- [ ] T009 [P] Implement performance benchmarking infrastructure
+
+**Core Architecture** (Constitution: Modular Design):
+- [ ] T010 Create 语音处理模块 (speech processing module) structure
+- [ ] T011 Create 自然语言理解模块 (NLU module) structure  
+- [ ] T012 Create 数字人渲染模块 (digital human rendering module) structure
+- [ ] T013 Create 用户界面模块 (UI module) structure
+
+**Performance & Monitoring**:
+- [ ] T014 Configure performance monitoring and logging
+- [ ] T015 Setup error handling and user feedback systems
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,12 +89,16 @@ Examples of foundational tasks (adjust based on your project):
 
 **Independent Test**: [How to verify this story works on its own]
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+### Tests for User Story 1 (MANDATORY per Constitution - Test-Driven Development) ⚠️
 
 **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for [endpoint] in tests/contract/test_[name].py
-- [ ] T011 [P] [US1] Integration test for [user journey] in tests/integration/test_[name].py
+**Core Functionality Tests** (Constitution: 语音识别、文本生成、实时性能、用户交互):
+- [ ] T020 [P] [US1] Performance test: 语音识别响应时间 < 200ms in tests/performance/test_speech_recognition.py
+- [ ] T021 [P] [US1] Performance test: 文本生成延迟 < 500ms in tests/performance/test_text_generation.py
+- [ ] T022 [P] [US1] Contract test for [specific API] in tests/contract/test_[name].py
+- [ ] T023 [P] [US1] Integration test for [user journey] in tests/integration/test_[name].py
+- [ ] T024 [P] [US1] UX consistency test for user feedback mechanisms in tests/ux/test_[name].py
 
 ### Implementation for User Story 1
 

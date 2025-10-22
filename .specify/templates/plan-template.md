@@ -31,7 +31,25 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+**Code Quality Check**:
+- [ ] Feature design follows SOLID principles
+- [ ] Clear module responsibilities defined
+- [ ] Code review process planned
+
+**Testing Standards Check**:
+- [ ] Test-driven development approach planned
+- [ ] Core functionality tests identified (语音识别、文本生成、实时性能、用户交互)
+- [ ] Test automation strategy defined
+
+**UX Consistency Check**:
+- [ ] UI/interaction patterns align with design system
+- [ ] User feedback mechanisms planned
+- [ ] Error handling UX defined
+
+**Performance Requirements Check**:
+- [ ] Performance targets defined (语音识别 < 200ms, 文本生成 < 500ms, 渲染 ≥ 30fps, 内存 < 2GB)
+- [ ] Performance testing approach planned
+- [ ] Resource usage constraints considered
 
 ## Project Structure
 

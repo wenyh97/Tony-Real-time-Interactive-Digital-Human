@@ -103,13 +103,33 @@
 ## Success Criteria *(mandatory)*
 
 <!--
-  ACTION REQUIRED: Define measurable success criteria.
-  These must be technology-agnostic and measurable.
+  ACTION REQUIRED: Define measurable success criteria aligned with constitution principles.
+  Must include performance, UX consistency, and quality metrics.
 -->
+
+### Performance Requirements (Constitution Compliance)
+
+- **SC-P01**: 语音识别响应时间 < 200ms (95th percentile)
+- **SC-P02**: 文本生成延迟 < 500ms (95th percentile)  
+- **SC-P03**: 数字人动画渲染 ≥ 30fps (sustained)
+- **SC-P04**: 系统内存占用 < 2GB (peak usage)
+
+### UX Consistency Requirements
+
+- **SC-UX01**: All user interactions have immediate visual feedback
+- **SC-UX02**: Error states provide clear recovery guidance
+- **SC-UX03**: Interface elements follow established design system
+- **SC-UX04**: 90% of users complete primary task on first attempt
+
+### Quality & Testing Requirements
+
+- **SC-Q01**: Code coverage ≥ 80% for core functionality
+- **SC-Q02**: All features pass automated integration tests
+- **SC-Q03**: Performance benchmarks meet constitution standards
+- **SC-Q04**: User acceptance tests validate UX consistency
 
 ### Measurable Outcomes
 
-- **SC-001**: [Measurable metric, e.g., "Users can complete account creation in under 2 minutes"]
-- **SC-002**: [Measurable metric, e.g., "System handles 1000 concurrent users without degradation"]
-- **SC-003**: [User satisfaction metric, e.g., "90% of users successfully complete primary task on first attempt"]
-- **SC-004**: [Business metric, e.g., "Reduce support tickets related to [X] by 50%"]
+- **SC-001**: [Feature-specific metric aligned with constitution]
+- **SC-002**: [User satisfaction metric with quantifiable target]
+- **SC-003**: [Business value metric demonstrating ROI]
