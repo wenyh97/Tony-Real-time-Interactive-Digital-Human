@@ -1,0 +1,41 @@
+###############################################################################
+# backend/requirements-ml.txt  (可选: 模型/语音/推理扩展环境)
+# 建议单独虚拟环境安装，避免与核心 Web 后端依赖冲突。
+# 说明:
+# - coqui 当前版本 0.0.10 强制 click==8.1.3，与 rich-toolkit 需要 >=8.1.7 冲突。
+#   如果必须使用 coqui 语音，请在独立环境中使用本文件，或在安装前手动卸载 rich-toolkit。
+# - 若你希望保持后端使用的较新 click (>=8.1.7)，则不要在同一环境安装 coqui。
+# - 可按需增删模型相关库。
+###############################################################################
+
+# 语音合成 / 语音识别
+coqui==0.0.10              # 语音合成包装 (pin click 8.1.3)
+openai-whisper==20231117    # Whisper 非官方日期版 (保持轻量)
+
+# 深度学习基础
+torch==2.2.2                # Windows + Py3.11 可用 (需 GPU/CPU 对应安装器)
+torchvision==0.17.2         # 图像相关 (若不需要可注释)
+accelerate==0.30.0          # 多设备加速/分布式训练
+bitsandbytes==0.43.1        # 低精度优化 (Windows 上可能不稳定)
+
+# NLP / 模型管理
+transformers==4.41.2        # HuggingFace 模型框架
+huggingface-hub==0.23.2     # 模型仓库访问
+safetensors==0.4.2          # 安全高效权重格式
+tokenizers==0.15.2          # 高性能分词
+tiktoken==0.7.0             # OpenAI 风格分词 (选择性)
+
+# Qwen 或其他中文大模型 (占位: 根据实际发布选择)
+# qwen==<适配版本>
+
+# 精确 pin coqui 所需 click 版本
+click==8.1.3                # 满足 coqui 要求; 与 rich-toolkit 冲突
+
+###############################################################################
+# 使用建议：
+# 1) 独立环境:  python -m venv venv-ml  && venv-ml\Scripts\activate
+# 2) 安装:       pip install --upgrade pip
+#                pip install -r requirements-ml.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+# 3) 如果需要同时运行 Web 后端与模型服务，可启动两个进程或通过微服务拆分。
+# 4) 若仅需 Whisper，可删除 transformers/torchvision/bitsandbytes 以减少安装体积。
+###############################################################################
